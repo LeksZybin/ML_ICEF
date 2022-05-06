@@ -1,0 +1,69 @@
+---
+title: "Home Assignment #7"
+author: Aleksandr Zybin, Sergei Garshin
+output: pdf_document
+params:
+  doc_title: "HW7-Aleksandr Zybin, Sergei Garshin.pdf"
+---
+
+## Problem 1. (7.3)
+
+From the task: $\hat{f}=Sy$
+
+### a) Prove that $y_{i}-\hat{f}^{-i}(x_{i})=\frac{y_{i}-\hat{f}(x_{i})}{1-S_{ii}}$:
+
+1] From formula (5.14): $\hat{f}=\underset{S}{\underbrace{N(N^{T}N+\lambda\Omega_{N})^{-1}N^{T}}}y$
+
+2]Therefore,
+
+-   $\hat{f}(x_{i})=x_{i}^{T}(X^{T}X+\lambda\Omega_{N})^{-1}x_{i}y$
+
+-   $\hat{f}(x_{i})=x_{i}^{T}(X^{T}X+\lambda\Omega_{N})^{-1}X_{i}^{T}y$
+
+3] The hint provided by Alexander Etz on stackechange about the use of Sherman--Morrison formula is used here:
+
+([link1](https://stats.stackexchange.com/questions/306777/hints-for-exercise-7-3-from-the-elements-of-statistical-learning), [link2](https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula))
+
+The general form of Sherman-Morrison formula:
+
+$(A-uv^{T})^{-1}=A^{-1}-\frac{A^{-1}uv^{T}A^{-1}}{1+v^{T}A^{-1}u}$, where:
+
+-   $A\epsilon R^{nxn}$ is an invertible square matrix
+
+-   $u,v\epsilon R^{n}$ are column vectors
+
+Derivation:
+
+$(I+\omega v^{T})^{-1}=I-\frac{\omega v^{T}}{1+v^{T}\omega}$
+
+Let $u=A\omega$ and $A+uv^T=A=A(I+\omega v^T)$
+
+$\left(A+uv^{\textsf{T}}\right)^{-1}=\left(I-\frac{A^{-1}uv^{\textsf{T}}}{1+v^{\textsf{T}}A^{-1}u}\right)A^{-1}=A^{-1}-\frac{A^{-1}uv^{\textsf{T}}A^{-1}}{1+v^{\textsf{T}}A^{-1}u}$
+
+Denote $(X^{T}X-x^{i}x_{i}^{T})$ as A, therefore:
+
+$(X^{T}X+\lambda\Omega-x_{i}x_{i}^{T})^{-1}=(A-x_{i}x_{i}^{T})^{-1}=A^{-1}-\frac{A^{-1}uv^{T}A^{-1}}{1+v^{T}A^{-1}u}$
+
+4] $\hat{f}^{-i}(x_{i})=x_{i}^{T}[A^{-1}-\frac{A^{-1}uv^{T}A^{-1}}{1+v^{T}A^{-1}u}](X^{T}y-x_{i}^{T}y_{i})=[x_{i}^{T}A^{-1}+\frac{S_{ii}v^{T}A^{-1}}{1-S_{ii}}](X^{T}y-x_{i}^{T}y_{i})=$
+
+$=x_{i}^{T}A^{-1}X^{T}y+\frac{S_{ii}x_{i}^{T}A^{-1}}{1-S_{ii}}X^{T}y-x_{i}^{T}A^{-1}x_{i}^{T}y_{i}-\frac{S_{ii}x_{i}^{T}A^{-1}}{1-S_{ii}}x_{i}^{T}y_{i}=\hat{f}(x_{i})+\frac{S_{ii}\hat{f}(x_{i})}{1-S_{ii}}-S_{ii}y_{i}-\frac{S_{ii}S_{ii}}{1-S_{ii}}y_{i}=$
+
+$=\hat{f}^{-1}(x_{i})+\frac{S_{ii}\hat{f}^{-1}(x_{i})}{1-S_{ii}}$;
+
+$\hat{f}^{-i}(x_{i})=\hat{f}^{-1}(x_{i})+\frac{S_{ii}\hat{f}^{-1}(x_{i})}{1-S_{ii}}$
+
+5] Finally, we get the desired equation: $y_{i}-\hat{f}^{-i}(x_{i})=\frac{y_{i}-\hat{f}(x_{i})}{1-S_{ii}}$
+
+### b) Show that $|y_{i}-\hat{f}^{-i}(x_{i})|\geq|y_{i}-\hat{f}(x_{i})|$
+
+1] $|\frac{(1-S_{ii})y_{i}}{1-S_{ii}}|\geq|(1-S_{ii})y_{i}|\Rightarrow|\frac{(1-S_{ii})}{1-S_{ii}}|\geq|(1-S_{ii})|\Rightarrow1\geq|(1-S_{ii})|\Leftrightarrow-1\leq1-S_{ii}\leq1\Leftrightarrow0\leq S_{ii}\leq2$
+
+2] We also know that $S_{ii}\geq0$ - positive semidefinite matrix (p.153, 5.4.1)
+
+... (Not obvious why it can be so that $S_{ii}\leq2$)
+
+### c)
+
+-   $S=N(N^{T}N+\lambda\Omega_{N})^{-1}N^{T}=X(X^{T}X+\lambda\Omega)^{-1}X^{T}$, $S\perp Y$
+
+-   S is a positive semidefinite matrix, $S_{ii}\geq0$

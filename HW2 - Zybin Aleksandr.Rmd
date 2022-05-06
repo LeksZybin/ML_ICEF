@@ -1,0 +1,79 @@
+---
+title: "HW2 - Ch.2 Supervised Learning"
+author: "Zybin Aleksandr"
+output: pdf_document
+name: "HW2-Zybin Aleksandr"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem 1. 25 points: \#2.2.5, p.39, EPE
+
+The derivation of this formula is similar to Problem 1 from the home assignment \#1.
+
+$EPE(x_0) = E_{y_0|x_0}E_{\tau}(y_0-\hat{y_0})^2\underset{f(x_{0})\eqsim x^{T}\beta}{=}E_{y_0|x_0}E_{\tau}([y_0-f(x_0)] -[f(x_0)-\hat{y_0}])^2= \\ E_{y_0|x_0}E_{\tau}(\epsilon^2)-2E_{y_0|x_0}E_{\tau}([y_0-x_0^T\beta][x_0^T\beta-\hat{y_0}])+E_{y_0|x_0}E_{\tau}(x_0^T\beta-\hat{y_0})^2=\\Var(\epsilon_0)-2E_{y_0|x_0}E_{t}(\epsilon_0)E_{y_0|x_0}E_{\tau}([x_0^T\beta-\hat{y_0}])+E_{y_0|x_0}E_{\tau}(x_0^T\beta-\hat{y_0})^2\underset{e_{i}\sim i.i.d.\rightarrow E(\epsilon)=0}{=}\\Var(\epsilon_0)+E_{y_0|x_0}E_{\tau}(x_0^T\beta-\hat{y_0})^2\\$
+
+We can then use formula (2.25) from TESL to derive $E_{y_0|x_0}E_{\tau}(x_0^T\beta-\hat{y_0})^2$ where:
+
+$E_{\tau}(x_0^T\beta-\hat{y_0})^2=E_{\tau}[\hat{y}_{0}-E_{\tau}(\hat{y})]^{2}+[E_{\tau}(\hat{y})-f(x_{0})]^{2}=Var_{\tau}(\hat{y})+Bias^2(\hat{y})$
+
+The derivation of this formula is similar to the derivation of the previous formula: we add term $E_{\tau}(\hat{y})$ to recombine equation. Therefore, I am not going to derive $E_{y_0|x_0}E_{\tau}(x_0^T\beta-\hat{y_0})^2$
+
+Then, using (3.8)
+
+$Var_{\tau}(\hat{y_0})=x_0^TVar(\beta)x_0=x_0^T(X_0^TX_0)^{-1}\sigma^2X=x_0=E_{\tau}[X_0^T(X_0^TX_0)^{-1}\sigma^2X_0]$
+
+Finally, we have $EPE(x_0)=\sigma^2 + E_{\tau}X_0^T(X_0^TX_0)^{-1}\sigma^2X_0$
+
+# Problem 3. (25: #2.2.8, p.40, classification of zipcodes)
+```{r warning=FALSE}
+#install.packages("data.table")
+library(data.table)
+test <- fread("http://web.stanford.edu/~oleg2/hse/zip-code/zip.test.gz")
+test <- test[test$V1 %in% c(2,3),]
+train <- fread("http://web.stanford.edu/~oleg2/hse/zip-code/zip.train.gz")
+train <- train[train$V1 %in% c(2,3),]
+```
+
+```{r warning=FALSE}
+library(class)
+library(knitr)
+#Regression model 
+reg_model <- lm(V1 ~ ., data=train)
+prediction_reg_train <- predict(reg_model, train)
+prediction_reg_test <- predict(reg_model, test)
+resid_reg_train <- train$V1 - prediction_reg_train
+resid_reg_test <- test$V1 - prediction_reg_test
+error_reg_train <- mean(resid_reg_train^2)
+error_reg_test <- mean(resid_reg_test^2)
+
+#knn classification
+num_of_k <- c()
+error_train <- c()
+error_test <- c()
+for (i in c(1,3,5,7,15)){
+k <- knn(train = train[,-c(1)], test = train[,-c(1)], cl = train$V1, k=i)
+error_knn_train <- mean(k!=train$V1)
+
+k <- knn(train = train[,-c(1)], test = test[,-c(1)], cl = train$V1, k=i)
+error_knn_test <- mean(k!=test$V1)
+
+num_of_k <- c(num_of_k,i)
+error_train <- c(error_train,error_knn_train)
+error_test <- c(error_test,error_knn_test)
+}
+
+reg_error <- data.frame(error_reg_train,error_reg_test)
+colnames(reg_error) <- c("Training Error", "Test Error")
+
+
+knn_error <- data.frame(num_of_k, error_train, error_test)
+colnames(knn_error) <- c("Number of k", "Training Error", "Test Error")
+```
+
+```{r echo=FALSE}
+kable(reg_error, caption = "Training and Test Error for Linear Regression") 
+kable(knn_error, caption="Training and Test Error for KNN")
+```
